@@ -75,7 +75,7 @@ async def main():
         output_folder = os.path.join(output_dir, os.path.dirname(relative_path))  # Create same folder structure
         os.makedirs(output_folder, exist_ok=True)
 
-        # Convert filename to snake_case and change extension to PNG
+        # Convert filename to snake_case and ensure the extension is '.png'
         filename = to_snake_case(os.path.basename(svg_file)).replace(".svg", ".png")
         output_path = os.path.join(output_folder, filename)
 
