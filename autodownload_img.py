@@ -87,22 +87,27 @@ async def main():
     # Set up the progress bar for uploads
     progress_bar = tqdm(total=len(converted_files), desc="Uploading to Cloudinary", unit="file")
 
-    # Upload to Cloudinary and list the files
-    async with aiohttp.ClientSession() as session:
-        upload_tasks = [upload_to_cloudinary(file, progress_bar) for file in converted_files]
-        uploaded_urls = await asyncio.gather(*upload_tasks)
+    # Open the output text file to save the results
+    output_file_path = os.path.join(os.getcwd(), "cloudinary_uploads.txt")
+    with open(output_file_path, "w") as f:
+        # Write the header to the file
+        f.write(f"{'Filename':<35} | {'Cloudinary URL'}\n")
+        f.write('-' * 75 + "\n")
 
-        # Print the header for the table
-        print(f"{'Filename':<35} | {'Cloudinary URL'}")
-        print('-' * 75)
+        # Upload to Cloudinary and list the files
+        async with aiohttp.ClientSession() as session:
+            upload_tasks = [upload_to_cloudinary(file, progress_bar) for file in converted_files]
+            uploaded_urls = await asyncio.gather(*upload_tasks)
 
-        # Print the uploaded files' details: filename and Cloudinary URL
-        for file_path, url in zip(converted_files, uploaded_urls):
-            if url:
-                print(f"{os.path.basename(file_path):<35} | {url}")
+            # Write each file's filename and Cloudinary URL to the text file
+            for file_path, url in zip(converted_files, uploaded_urls):
+                if url:
+                    f.write(f"{os.path.basename(file_path):<35} | {url}\n")
 
     # Close the progress bar
     progress_bar.close()
+
+    print(f"Upload results saved to: {output_file_path}")
 
 if __name__ == "__main__":
     asyncio.run(main())
